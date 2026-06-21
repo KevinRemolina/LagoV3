@@ -1,7 +1,14 @@
 import Link from "next/link";
 import { Droplets, MapPin, Phone, Mail } from "lucide-react";
+import { createClient } from "@/utils/supabase/server";
 
-export function Footer() {
+export async function Footer() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  const staffLink = user ? "/admin/dashboard" : "/login";
+  const staffText = user ? "Ir al Dashboard" : "Acceso Staff";
+
   return (
     <footer className="bg-foreground text-background border-t">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -17,10 +24,10 @@ export function Footer() {
               Tu santuario de paz y belleza. Especialistas en tratamientos estéticos, relajación y salud corporal integral.
             </p>
             <div className="flex space-x-4 pt-2">
-              <Link href="#" className="text-muted-foreground hover:text-primary transition-colors text-sm">
+              <Link href="https://www.instagram.com/lagospaesteticasalud" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors text-sm">
                 Instagram
               </Link>
-              <Link href="#" className="text-muted-foreground hover:text-primary transition-colors text-sm">
+              <Link href="https://www.facebook.com/profile.php?id=61577780604356" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors text-sm">
                 Facebook
               </Link>
             </div>
@@ -42,11 +49,6 @@ export function Footer() {
               <li>
                 <Link href="/contacto" className="text-muted-foreground hover:text-primary transition-colors">
                   Contacto
-                </Link>
-              </li>
-              <li>
-                <Link href="/admin" className="text-muted-foreground hover:text-primary transition-colors">
-                  Portal Administrativo
                 </Link>
               </li>
             </ul>
@@ -84,13 +86,16 @@ export function Footer() {
               <li className="flex items-start gap-3 text-muted-foreground">
                 <MapPin className="h-5 w-5 text-primary shrink-0" />
                 <span>
-                  Av. Principal 123, Centro Comercial Plaza<br />
-                  Ciudad, Estado
+                  Cra. 14 #11-88, Sogamoso, Boyacá <br />
                 </span>
               </li>
               <li className="flex items-center gap-3 text-muted-foreground">
                 <Phone className="h-5 w-5 text-primary shrink-0" />
-                <span>+1 (555) 123-4567</span>
+                <div className="flex flex-col gap-1">
+                  <span>+57 311 311 8625</span>
+                  <span>+57 314 341 1955</span>
+                  <span>+57 313 510 5205</span>
+                </div>
               </li>
               <li className="flex items-center gap-3 text-muted-foreground">
                 <Mail className="h-5 w-5 text-primary shrink-0" />
@@ -104,9 +109,13 @@ export function Footer() {
           <p className="text-sm text-muted-foreground">
             © {new Date().getFullYear()} Lago Spa · Estética · Salud. Todos los derechos reservados.
           </p>
-          <div className="flex gap-4 text-sm text-muted-foreground">
+          <div className="flex items-center gap-4 text-sm text-muted-foreground">
             <Link href="/privacidad" className="hover:text-primary transition-colors">Política de Privacidad</Link>
             <Link href="/terminos" className="hover:text-primary transition-colors">Términos de Servicio</Link>
+            <span className="text-muted-foreground/30">|</span>
+            <Link href={staffLink} className="hover:text-primary transition-colors flex items-center gap-1 opacity-70 hover:opacity-100">
+              {staffText}
+            </Link>
           </div>
         </div>
       </div>

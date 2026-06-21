@@ -1,10 +1,33 @@
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { ArrowRight, Leaf, Sparkles } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
+import { createClient } from "@/utils/supabase/server";
 
-export function Hero() {
+export async function Hero() {
+  const supabase = await createClient();
+  const { data: settings } = await supabase.from('settings').select('*').eq('key', 'whatsapp_primary').single();
+  let defaultPhone = "573113118625"; // Fallback
+  if (settings?.value) {
+    const rawWa = typeof settings.value === 'string' ? settings.value : String(settings.value);
+    defaultPhone = rawWa.replace(/[^0-9]/g, '');
+  }
+
+  const waMessage = encodeURIComponent("Hola, me gustaría agendar una cita de valoración o recibir más información.");
+
   return (
     <section className="relative overflow-hidden bg-background pt-16 md:pt-24 lg:pt-32 pb-16 md:pb-24 lg:pb-32">
+      {/* Subtle Background Image */}
+      <div className="absolute inset-0 z-0 opacity-[0.08] dark:opacity-[0.12] pointer-events-none">
+        <Image 
+          src="/assets/MainBackgroundLight.webp" 
+          alt="Texture" 
+          fill 
+          className="object-cover" 
+          priority
+        />
+      </div>
+
       {/* Decorative background elements */}
       <div className="absolute inset-0 z-0">
         <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-primary/10 blur-3xl" />
@@ -26,13 +49,21 @@ export function Hero() {
               Expertos en tratamientos estéticos avanzados, spa terapéutico y bienestar integral en un entorno diseñado exclusivamente para tu tranquilidad.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
-              <Button size="lg" className="h-12 px-8 text-base font-semibold shadow-lg hover:shadow-xl transition-all">
+              <a 
+                href={`https://wa.me/${defaultPhone}?text=${waMessage}`} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className={buttonVariants({ size: "lg", className: "h-12 px-8 text-base font-semibold shadow-lg hover:shadow-xl transition-all" })}
+              >
                 Agendar tu cita
                 <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-              <Button variant="outline" size="lg" className="h-12 px-8 text-base font-semibold border-primary text-primary hover:bg-primary/5">
+              </a>
+              <Link 
+                href="/servicios" 
+                className={buttonVariants({ variant: "outline", size: "lg", className: "h-12 px-8 text-base font-semibold border-primary text-primary hover:bg-primary/5" })}
+              >
                 Ver tratamientos
-              </Button>
+              </Link>
             </div>
             
             <div className="mt-10 flex items-center gap-8 text-sm font-medium text-muted-foreground">

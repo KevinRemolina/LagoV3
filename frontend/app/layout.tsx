@@ -17,6 +17,9 @@ const playfair = Playfair_Display({
 export const metadata: Metadata = {
   title: "Lago Spa · Estética · Salud",
   description: "Clínica de estética y spa. Especialistas en salud, belleza y bienestar.",
+  icons: {
+    icon: "/assets/MainIcon.webp",
+  }
 };
 
 export default function RootLayout({

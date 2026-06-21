@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Menu, X, Droplets } from "lucide-react";
+import { Menu, X } from "lucide-react";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -28,10 +29,14 @@ export function Navbar() {
         <div className="flex h-16 items-center justify-between">
           <div className="flex-shrink-0">
             <Link href="/" className="flex items-center gap-2">
-              <Droplets className="h-8 w-8 text-primary" />
-              <span className="font-heading text-xl font-bold tracking-tight text-foreground">
-                Lago Spa
-              </span>
+              <Image 
+                src="/assets/LogoPrincipal.avif" 
+                alt="Lago Spa Logo" 
+                width={140} 
+                height={40} 
+                className="object-contain h-10 w-auto"
+                priority
+              />
             </Link>
           </div>
 
@@ -62,8 +67,13 @@ export function Navbar() {
               <SheetContent side="right" className="w-[300px] sm:w-[400px]">
                 <SheetHeader>
                   <SheetTitle className="font-heading text-left flex items-center gap-2">
-                    <Droplets className="h-6 w-6 text-primary" />
-                    Lago Spa
+                    <Image 
+                      src="/assets/LogoPrincipal.avif" 
+                      alt="Lago Spa Logo" 
+                      width={120} 
+                      height={32} 
+                      className="object-contain h-8 w-auto"
+                    />
                   </SheetTitle>
                 </SheetHeader>
                 <div className="mt-8 flex flex-col gap-4">
