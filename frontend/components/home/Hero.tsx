@@ -38,14 +38,14 @@ export async function Hero() {
             Un santuario para tu bienestar
           </p>
         </BlurFade>
-        
+
         <BlurFade delay={0.3} inView={false}>
           <h1 className="font-heading text-5xl md:text-7xl lg:text-8xl font-bold text-white mb-8 leading-[1.1] max-w-5xl">
             Renueva tu cuerpo,<br />
             armoniza tu mente.
           </h1>
         </BlurFade>
-        
+
         <BlurFade delay={0.5} inView={false}>
           <p className="text-white/80 font-serif text-lg md:text-xl max-w-2xl mb-12">
             Descubre el equilibrio perfecto entre estética avanzada y relajación profunda en un entorno diseñado exclusivamente para ti.
@@ -66,7 +66,7 @@ export async function Hero() {
               href="/servicios"
               className="border border-white/50 text-white px-10 py-4 uppercase tracking-widest text-xs font-bold hover:bg-white hover:text-black hover:border-white transition-colors duration-300"
             >
-              Nuestras Colecciones
+              Nuestros Servicios
             </Link>
           </div>
         </BlurFade>

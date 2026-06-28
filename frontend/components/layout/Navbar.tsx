@@ -25,6 +25,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 const categories = [
   {
@@ -71,10 +72,18 @@ export function Navbar() {
             <Link href="/" className="flex items-center gap-2">
               <Image
                 src="/assets/LogoPrincipal.avif"
-                alt="Lago Spa Logo"
+                alt="Lago Spa Logo Claro"
                 width={160}
                 height={50}
-                className="object-contain h-12 w-auto"
+                className="object-contain h-12 w-auto dark:hidden"
+                priority
+              />
+              <Image
+                src="/assets/LogoPrincipalDark.avif"
+                alt="Lago Spa Logo Oscuro"
+                width={160}
+                height={50}
+                className="object-contain h-12 w-auto hidden dark:block"
                 priority
               />
             </Link>
@@ -145,14 +154,16 @@ export function Navbar() {
             </nav>
           </div>
 
-          <div className="hidden md:flex items-center justify-end">
+          <div className="hidden md:flex items-center justify-end gap-4">
             <a href="https://wa.me/573113118625" target="_blank" rel="noopener noreferrer" className="border border-foreground px-6 py-2.5 text-xs uppercase tracking-widest font-semibold hover:bg-foreground hover:text-background transition-colors duration-300">
               Agendar Cita
             </a>
+            <ThemeToggle />
           </div>
 
           {/* Navegación Mobile */}
-          <div className="md:hidden">
+          <div className="md:hidden flex items-center gap-2">
+            <ThemeToggle />
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
               <SheetTrigger className="p-2 -mr-2 text-foreground/80 hover:text-foreground transition-colors">
                 <Menu className="h-6 w-6" strokeWidth={1.5} />
@@ -167,10 +178,17 @@ export function Navbar() {
                     <SheetTitle>
                       <Image
                         src="/assets/LogoPrincipal.avif"
-                        alt="Lago Spa Logo"
+                        alt="Lago Spa Logo Claro"
                         width={140}
                         height={40}
-                        className="object-contain h-10 w-auto"
+                        className="object-contain h-10 w-auto dark:hidden"
+                      />
+                      <Image
+                        src="/assets/LogoPrincipalDark.avif"
+                        alt="Lago Spa Logo Oscuro"
+                        width={140}
+                        height={40}
+                        className="object-contain h-10 w-auto hidden dark:block"
                       />
                     </SheetTitle>
                   </SheetHeader>

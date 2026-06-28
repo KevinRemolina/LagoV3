@@ -10,6 +10,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { ConfirmModal } from "../components/ConfirmModal";
 
 type SpecialistInitialData = {
   id?: string;
@@ -35,12 +36,22 @@ export function SpecialistForm({ initialData }: { initialData?: SpecialistInitia
   const [schedules, setSchedules] = useState<string[]>(initialData?.schedules || []);
   const [newSchedule, setNewSchedule] = useState("");
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [pendingFormElement, setPendingFormElement] = useState<HTMLFormElement | null>(null);
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setPendingFormElement(e.currentTarget);
+    setIsConfirmOpen(true);
+  };
+
+  const processSubmit = async () => {
+    if (!pendingFormElement) return;
+    setIsConfirmOpen(false);
     setIsSubmitting(true);
     
     try {
-      const form = e.currentTarget;
+      const form = pendingFormElement;
       const formData = new FormData(form);
       formData.append("certifications", JSON.stringify(certifications));
       formData.append("schedules", JSON.stringify(schedules));
@@ -280,6 +291,14 @@ export function SpecialistForm({ initialData }: { initialData?: SpecialistInitia
           </Button>
         </div>
       </form>
+
+      <ConfirmModal 
+        isOpen={isConfirmOpen}
+        title="¿Estás seguro de que deseas guardar los cambios?"
+        onConfirm={processSubmit}
+        onCancel={() => setIsConfirmOpen(false)}
+        confirmText="Guardar"
+      />
     </div>
   );
 }

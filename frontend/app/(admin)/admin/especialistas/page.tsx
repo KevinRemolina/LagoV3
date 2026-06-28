@@ -2,8 +2,9 @@ import { getSpecialists, deleteSpecialist } from "./actions"
 import Link from "next/link"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Plus, Edit, Trash2 } from "lucide-react"
+import { Plus, Edit, Trash2, ExternalLink } from "lucide-react"
 import Image from "next/image"
+import { DeleteButton } from "../components/DeleteButton"
 
 function VisibilityBadge({ isVisible }: { isVisible: boolean }) {
   return (
@@ -93,17 +94,23 @@ export default async function SpecialistsPage() {
                         <td className="px-6 py-4"><VisibilityBadge isVisible={spec.is_visible} /></td>
                         <td className="px-6 py-4 text-right">
                           <div className="flex justify-end gap-2">
-                            <Link href={`/admin/especialistas/${spec.id}`} className={buttonVariants({ variant: "ghost", size: "icon" }) + " hover:text-primary"}>
+                            <Link href={`/especialistas#especialista-${spec.id}`} target="_blank" className={buttonVariants({ variant: "ghost", size: "icon" }) + " hover:text-primary"} title="Vista previa pública">
+                              <ExternalLink className="w-4 h-4" />
+                            </Link>
+                            <Link href={`/admin/especialistas/${spec.id}`} className={buttonVariants({ variant: "ghost", size: "icon" }) + " hover:text-primary"} title="Editar">
                               <Edit className="w-4 h-4" />
                             </Link>
-                            <form action={async () => {
-                              'use server'
-                              await deleteSpecialist(spec.id)
-                            }}>
-                              <Button variant="ghost" size="icon" className="text-destructive hover:bg-destructive/10" type="submit">
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
-                            </form>
+                            <DeleteButton 
+                              variant="ghost" 
+                              size="icon" 
+                              className="text-destructive hover:bg-destructive/10" 
+                              onDelete={async () => {
+                                'use server'
+                                await deleteSpecialist(spec.id)
+                              }}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </DeleteButton>
                           </div>
                         </td>
                       </tr>
@@ -136,21 +143,33 @@ export default async function SpecialistsPage() {
 
                   <div className="flex justify-end gap-2">
                     <Link
+                      href={`/especialistas#especialista-${spec.id}`}
+                      target="_blank"
+                      className={buttonVariants({ variant: "outline", size: "sm" })}
+                      title="Vista previa pública"
+                    >
+                      <ExternalLink className="w-4 h-4 mr-1" />
+                      Ver
+                    </Link>
+                    <Link
                       href={`/admin/especialistas/${spec.id}`}
                       className={buttonVariants({ variant: "outline", size: "sm" })}
                     >
                       <Edit className="w-4 h-4 mr-1" />
                       Editar
                     </Link>
-                    <form action={async () => {
-                      'use server'
-                      await deleteSpecialist(spec.id)
-                    }}>
-                      <Button variant="outline" size="sm" className="text-destructive hover:bg-destructive/10" type="submit">
-                        <Trash2 className="w-4 h-4 mr-1" />
-                        Eliminar
-                      </Button>
-                    </form>
+                    <DeleteButton 
+                      variant="outline" 
+                      size="sm" 
+                      className="text-destructive hover:bg-destructive/10" 
+                      onDelete={async () => {
+                        'use server'
+                        await deleteSpecialist(spec.id)
+                      }}
+                    >
+                      <Trash2 className="w-4 h-4 mr-1" />
+                      Eliminar
+                    </DeleteButton>
                   </div>
                 </CardContent>
               </Card>

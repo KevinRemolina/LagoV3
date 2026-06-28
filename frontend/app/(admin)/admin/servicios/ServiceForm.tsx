@@ -10,6 +10,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { ConfirmModal } from "../components/ConfirmModal";
 
 export function ServiceForm({ 
   initialData, 
@@ -22,6 +23,14 @@ export function ServiceForm({
 }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [activeTab, setActiveTab] = useState('general');
+
+  // Validation States
+  const [title, setTitle] = useState(initialData?.title || '');
+  const [categoryId, setCategoryId] = useState(initialData?.category_id || '');
+  const [description, setDescription] = useState(initialData?.description || '');
+  const [isPromotional, setIsPromotional] = useState(initialData?.is_promotional || false);
+  const [promoStart, setPromoStart] = useState(initialData?.promotion_start ? new Date(initialData.promotion_start).toISOString().slice(0,16) : '');
+  const [promoEnd, setPromoEnd] = useState(initialData?.promotion_end ? new Date(initialData.promotion_end).toISOString().slice(0,16) : '');
 
   // Multi-select for Specialists
   const initialSpecialists = initialData?.specialists?.map((s: any) => s.specialist_id) || [];
@@ -39,12 +48,60 @@ export function ServiceForm({
   // Existing images
   const [existingImages, setExistingImages] = useState<any[]>(initialData?.images || []);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [pendingFormData, setPendingFormData] = useState<FormData | null>(null);
+  const [imageToDelete, setImageToDelete] = useState<{id: string, path: string} | null>(null);
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    
+    const titleVal = formData.get('title') as string;
+    const catVal = formData.get('category_id') as string;
+    const descVal = formData.get('description') as string;
+
+    if (!titleVal.trim() || !catVal) {
+      toast.error("Faltan campos obligatorios en la pestaña General.");
+      setActiveTab('general');
+      return;
+    }
+
+    if (!descVal.trim()) {
+      toast.error("La descripción completa es obligatoria en la pestaña Detalles.");
+      setActiveTab('details');
+      return;
+    }
+
+    // Validaciones de la pestaña Promociones
+    const isPromotional = formData.get('is_promotional') === 'true';
+    if (isPromotional) {
+      const start = formData.get('promotion_start') as string;
+      const end = formData.get('promotion_end') as string;
+      
+      if (!start || !end) {
+        toast.error("Debes establecer las fechas de inicio y fin para la promoción.");
+        setActiveTab('promo');
+        return;
+      }
+      
+      if (new Date(start) >= new Date(end)) {
+        toast.error("La fecha de fin debe ser posterior a la fecha de inicio.");
+        setActiveTab('promo');
+        return;
+      }
+    }
+    
+    setPendingFormData(formData);
+    setIsConfirmOpen(true);
+  };
+
+  const processSubmit = async () => {
+    if (!pendingFormData) return;
+    setIsConfirmOpen(false);
     setIsSubmitting(true);
     
     try {
-      const formData = new FormData(e.currentTarget);
+      const formData = pendingFormData;
       
       formData.append("benefits", JSON.stringify(benefits));
       formData.append("included_services", JSON.stringify(included));
@@ -124,11 +181,15 @@ export function ServiceForm({
     else if (coverIndex > index) setCoverIndex(coverIndex - 1);
   };
 
-  const handleDeleteExistingImage = async (imgId: string, path: string) => {
-    if(confirm("¿Seguro que deseas eliminar esta imagen permanentemente?")) {
-      await deleteServiceImage(imgId, path);
-      setExistingImages(prev => prev.filter(img => img.id !== imgId));
-    }
+  const handleDeleteExistingImage = (imgId: string, path: string) => {
+    setImageToDelete({ id: imgId, path });
+  };
+
+  const processDeleteImage = async () => {
+    if (!imageToDelete) return;
+    await deleteServiceImage(imageToDelete.id, imageToDelete.path);
+    setExistingImages(prev => prev.filter(img => img.id !== imageToDelete.id));
+    setImageToDelete(null);
   };
 
   const handleSetExistingCover = async (imgId: string) => {
@@ -140,12 +201,19 @@ export function ServiceForm({
   };
 
   const tabs = [
-    { id: 'general', label: 'General' },
-    { id: 'details', label: 'Detalles' },
-    { id: 'promo', label: 'Promociones' },
-    { id: 'specialists', label: 'Especialistas' },
-    { id: 'images', label: 'Imágenes' },
+    { id: 'general', label: 'General', hasError: !title.trim() || !categoryId },
+    { id: 'details', label: 'Detalles', hasError: !description.trim() },
+    { id: 'promo', label: 'Promociones', hasError: isPromotional && (!promoStart || !promoEnd) },
+    { id: 'specialists', label: 'Especialistas', hasError: false },
+    { id: 'images', label: 'Imágenes', hasError: false },
   ];
+
+  const totalRequired = 3 + (isPromotional ? 2 : 0);
+  const filledRequired = (title.trim() ? 1 : 0) + 
+                         (categoryId ? 1 : 0) + 
+                         (description.trim() ? 1 : 0) + 
+                         (isPromotional ? ((promoStart ? 1 : 0) + (promoEnd ? 1 : 0)) : 0);
+  const progressPercentage = Math.round((filledRequired / totalRequired) * 100);
 
   return (
     <div className="space-y-6">
@@ -158,20 +226,35 @@ export function ServiceForm({
         </h1>
       </div>
 
-      <div className="flex overflow-x-auto gap-2 border-b border-border pb-2">
-        {tabs.map(tab => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`px-4 py-2 text-sm font-medium rounded-t-md transition-colors whitespace-nowrap ${
-              activeTab === tab.id 
-                ? "bg-primary text-primary-foreground" 
-                : "text-muted-foreground hover:bg-muted"
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
+      <div className="space-y-4">
+        <div className="flex flex-col gap-1">
+          <div className="flex justify-between text-sm text-muted-foreground font-medium">
+            <span>Completitud del servicio</span>
+            <span>{progressPercentage}%</span>
+          </div>
+          <div className="w-full bg-muted rounded-full h-2">
+            <div 
+              className={`h-2 rounded-full transition-all duration-300 ${progressPercentage === 100 ? 'bg-green-500' : 'bg-primary'}`} 
+              style={{ width: `${progressPercentage}%` }} 
+            />
+          </div>
+        </div>
+
+        <div className="flex overflow-x-auto gap-2 border-b border-border pb-2">
+          {tabs.map(tab => (
+            <button
+              key={tab.id}
+              onClick={(e) => { e.preventDefault(); setActiveTab(tab.id); }}
+              className={`px-4 py-2 text-sm font-medium rounded-t-md transition-colors whitespace-nowrap ${
+                activeTab === tab.id 
+                  ? "bg-primary text-primary-foreground" 
+                  : "text-muted-foreground hover:bg-muted"
+              }`}
+            >
+              {tab.label} {tab.hasError && <span className="text-red-500 ml-1" title="Falta información requerida">⚠️</span>}
+            </button>
+          ))}
+        </div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-8 bg-card border border-border p-6 rounded-xl shadow-sm">
@@ -182,11 +265,11 @@ export function ServiceForm({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
               <label className="text-sm font-medium">Título del Servicio *</label>
-              <Input name="title" defaultValue={initialData?.title} required placeholder="Ej. Limpieza Facial Profunda" />
+              <Input name="title" defaultValue={initialData?.title} onChange={e => setTitle(e.target.value)} placeholder="Ej. Limpieza Facial Profunda" />
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">Categoría *</label>
-              <select name="category_id" defaultValue={initialData?.category_id || ''} required className="w-full p-2 border rounded-md bg-background">
+              <select name="category_id" defaultValue={initialData?.category_id || ''} onChange={e => setCategoryId(e.target.value)} className="w-full p-2 border rounded-md bg-background">
                 <option value="" disabled>Seleccione una categoría</option>
                 {categories.map(cat => (
                   <option key={cat.id} value={cat.id}>{cat.name}</option>
@@ -231,7 +314,7 @@ export function ServiceForm({
           </div>
           <div className="space-y-2">
             <label className="text-sm font-medium">Descripción Completa *</label>
-            <textarea name="description" defaultValue={initialData?.description} required rows={6} className="w-full px-3 py-2 border rounded-md bg-transparent" placeholder="Detalles exhaustivos del tratamiento." />
+            <textarea name="description" defaultValue={initialData?.description} onChange={e => setDescription(e.target.value)} rows={6} className="w-full px-3 py-2 border rounded-md bg-transparent" placeholder="Detalles exhaustivos del tratamiento." />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4 border-t">
@@ -270,7 +353,7 @@ export function ServiceForm({
         <div className={activeTab === 'promo' ? 'space-y-6' : 'hidden'}>
           <div className="space-y-4">
             <label className="flex items-center gap-2 cursor-pointer bg-muted p-4 rounded-lg">
-              <input type="checkbox" name="is_promotional" value="true" defaultChecked={initialData?.is_promotional} className="w-5 h-5 accent-primary" />
+              <input type="checkbox" name="is_promotional" value="true" defaultChecked={initialData?.is_promotional} onChange={e => setIsPromotional(e.target.checked)} className="w-5 h-5 accent-primary" />
               <span className="text-base font-bold">Activar como Promoción Temporal</span>
             </label>
             <p className="text-sm text-muted-foreground">Al activarlo, debes establecer una fecha de inicio y fin. El servicio se archivará automáticamente cuando expire.</p>
@@ -278,11 +361,11 @@ export function ServiceForm({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
               <label className="text-sm font-medium">Fecha de Inicio</label>
-              <Input name="promotion_start" type="datetime-local" defaultValue={initialData?.promotion_start ? new Date(initialData.promotion_start).toISOString().slice(0,16) : ''} />
+              <Input name="promotion_start" type="datetime-local" defaultValue={initialData?.promotion_start ? new Date(initialData.promotion_start).toISOString().slice(0,16) : ''} onChange={e => setPromoStart(e.target.value)} />
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">Fecha de Fin</label>
-              <Input name="promotion_end" type="datetime-local" defaultValue={initialData?.promotion_end ? new Date(initialData.promotion_end).toISOString().slice(0,16) : ''} />
+              <Input name="promotion_end" type="datetime-local" defaultValue={initialData?.promotion_end ? new Date(initialData.promotion_end).toISOString().slice(0,16) : ''} onChange={e => setPromoEnd(e.target.value)} />
             </div>
           </div>
         </div>
@@ -391,6 +474,23 @@ export function ServiceForm({
           </Button>
         </div>
       </form>
+
+      <ConfirmModal 
+        isOpen={isConfirmOpen}
+        title="¿Estás seguro de que deseas guardar los cambios?"
+        onConfirm={processSubmit}
+        onCancel={() => setIsConfirmOpen(false)}
+        confirmText="Guardar"
+      />
+      
+      <ConfirmModal 
+        isOpen={!!imageToDelete}
+        title="¿Seguro que deseas eliminar esta imagen permanentemente?"
+        onConfirm={processDeleteImage}
+        onCancel={() => setImageToDelete(null)}
+        confirmText="Eliminar"
+        confirmVariant="destructive"
+      />
     </div>
   );
 }

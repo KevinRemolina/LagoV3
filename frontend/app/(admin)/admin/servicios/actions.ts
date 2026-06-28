@@ -10,8 +10,9 @@ export async function getServices() {
     .from('services')
     .select(`
       *,
-      category:categories(name),
-      images:service_images(storage_path, is_cover)
+      category:categories(name, slug),
+      images:service_images(storage_path, is_cover),
+      specialists:service_specialists(specialist_id)
     `)
     .order('created_at', { ascending: false })
     

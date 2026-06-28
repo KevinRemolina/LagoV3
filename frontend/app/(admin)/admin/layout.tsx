@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard,
   Sparkles,
@@ -22,13 +22,14 @@ import {
 } from "@/components/ui/sheet";
 import { useState } from "react";
 import Image from "next/image";
+import { createClient } from "@/utils/supabase/client";
 
-const sidebarLinks = [
+const sidebarLinks: { name: string; href: string; icon: React.ElementType; isWip?: boolean }[] = [
   { name: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
   { name: "Servicios", href: "/admin/servicios", icon: Sparkles },
   { name: "Especialistas", href: "/admin/especialistas", icon: Users },
   { name: "Mensajes", href: "/admin/mensajes", icon: MessageSquare },
-  { name: "Configuración", href: "#", icon: Settings, isWip: true },
+  { name: "Vista Promociones", href: "/admin/configuracion", icon: Settings },
 ];
 
 export default function AdminLayout({
@@ -37,14 +38,22 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
+
+  const handleLogout = async () => {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.push("/login");
+    router.refresh();
+  };
 
   const SidebarContent = () => (
     <div className="flex flex-col h-full bg-card border-r border-border">
       <div className="p-6 border-b border-border">
         <Link href="/" className="flex items-center gap-2 text-primary-foreground">
           <Image
-            src="/assets/logoAdminLago.svg"
+            src="/assets/logoAdminLago.webp"
             alt="Lago Spa Logo"
             width={170}
             height={70}
@@ -91,7 +100,11 @@ export default function AdminLayout({
       </div>
 
       <div className="p-4 border-t border-border">
-        <Button variant="ghost" className="w-full justify-start text-muted-foreground hover:text-destructive hover:bg-destructive/10">
+        <Button 
+          variant="ghost" 
+          className="w-full justify-start text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+          onClick={handleLogout}
+        >
           <LogOut className="w-5 h-5 mr-3" />
           Cerrar Sesión
         </Button>

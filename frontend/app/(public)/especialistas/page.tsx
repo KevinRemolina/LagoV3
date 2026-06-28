@@ -59,7 +59,7 @@ export default async function SpecialistsPage() {
             const isEven = index % 2 === 0;
 
             return (
-              <div key={specialist.id} className={`flex flex-col gap-10 lg:gap-20 items-center ${isEven ? 'lg:flex-row' : 'lg:flex-row-reverse'}`}>
+              <div id={`especialista-${specialist.id}`} key={specialist.id} className={`flex flex-col gap-10 lg:gap-20 items-center ${isEven ? 'lg:flex-row' : 'lg:flex-row-reverse'}`}>
                 {/* Photo Section */}
                 <div className="w-full lg:w-1/2">
                   <div className="relative w-full aspect-[4/5] bg-muted overflow-hidden border border-border/20">

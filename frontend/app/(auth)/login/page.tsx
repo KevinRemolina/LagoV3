@@ -1,13 +1,23 @@
-import { Button } from "@/components/ui/button"
+import { Button, buttonVariants } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Droplets } from "lucide-react"
+import { Droplets, ArrowLeft } from "lucide-react"
 import Image from "next/image"
+import Link from "next/link"
 import { login } from "./actions"
 
 export default async function LoginPage(props: { searchParams: Promise<{ message?: string }> }) {
   const searchParams = await props.searchParams;
   return (
     <div className="min-h-screen flex items-center justify-center bg-muted/20 px-4 relative overflow-hidden">
+      {/* Back Button */}
+      <Link 
+        href="/" 
+        className={`${buttonVariants({ variant: "ghost", size: "icon" })} absolute top-4 left-4 md:top-8 md:left-8 z-20 rounded-full bg-background/50 backdrop-blur-sm border border-border/50 hover:bg-background/80`}
+      >
+        <ArrowLeft className="w-5 h-5" />
+        <span className="sr-only">Volver al inicio</span>
+      </Link>
+
       {/* Subtle Background Image */}
       <div className="absolute inset-0 z-0 opacity-[0.08] dark:opacity-[0.12] pointer-events-none">
         <Image 
