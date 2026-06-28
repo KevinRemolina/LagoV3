@@ -4,10 +4,13 @@ import { notFound } from "next/navigation"
 
 export default async function EditSpecialistPage(props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
+
+  let specialist;
   try {
-    const specialist = await getSpecialist(params.id)
-    return <SpecialistForm initialData={specialist} />
+    specialist = await getSpecialist(params.id)
   } catch (error) {
     notFound()
   }
+
+  return <SpecialistForm initialData={specialist} />
 }

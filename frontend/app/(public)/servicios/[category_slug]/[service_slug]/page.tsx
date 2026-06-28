@@ -3,8 +3,7 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
-import { ArrowLeft, CalendarDays, CheckCircle2, AlertCircle, Clock, Info, Award } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
+import { ArrowLeft, CalendarDays, Info, Award, Plus, ChevronRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 export const revalidate = 60;
@@ -80,7 +79,7 @@ export default async function ServiceDetailPage({
   return (
     <div className="bg-background min-h-screen pb-20">
       {/* Hero Section */}
-      <div className="relative w-full h-[40vh] md:h-[50vh] bg-muted">
+      <div className="relative w-full h-[60vh] md:h-[70vh] bg-muted flex items-end">
         <Image
           src={coverUrl}
           alt={service.title}
@@ -88,37 +87,34 @@ export default async function ServiceDetailPage({
           className="object-cover"
           priority
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/10" />
 
-        <div className="absolute bottom-0 left-0 w-full p-6 md:p-12 text-white">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <Link href={`/servicios/${category_slug}`} className="inline-flex items-center text-white/80 hover:text-white mb-6 transition-colors">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Volver a {category.name}
+        <div className="relative z-10 w-full p-6 md:p-12 text-white">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
+            <Link href={`/servicios/${category_slug}`} className="inline-flex items-center text-white/70 hover:text-white mb-10 text-sm tracking-widest uppercase font-semibold transition-colors">
+              <ArrowLeft className="w-4 h-4 mr-2" strokeWidth={1.5} />
+              Colección {category.name}
             </Link>
 
-            <div className="flex flex-wrap items-center gap-3 mb-4">
-              <Badge variant="secondary" className="bg-primary/90 text-white hover:bg-primary border-none">
-                {category.name}
-              </Badge>
+            <div className="flex flex-wrap items-center gap-3 mb-6">
               {service.is_promotional && (
-                <Badge className="bg-green-100 hover:bg-green-200 text-green-700 border border-green-300 shadow-sm">
-                  ¡Promoción Especial!
-                </Badge>
+                <div className="bg-white text-black px-4 py-1 text-xs font-semibold uppercase tracking-widest">
+                  Promoción
+                </div>
               )}
               {service.status === 'PRIVATE' && (
-                <Badge variant="outline" className="bg-gray-900/80 text-white border-gray-600 backdrop-blur-md">
-                  🔒 Oculto al público
-                </Badge>
+                <div className="bg-black/50 backdrop-blur border border-white/20 text-white px-4 py-1 text-xs font-semibold uppercase tracking-widest">
+                  🔒 Privado
+                </div>
               )}
             </div>
 
-            <h1 className="font-heading text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-4 max-w-4xl">
+            <h1 className="font-heading text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight mb-6 leading-none">
               {service.title}
             </h1>
 
             {service.short_description && (
-              <p className="text-lg md:text-xl text-white/90 max-w-2xl line-clamp-2">
+              <p className="text-xl md:text-2xl text-white/80 max-w-2xl font-serif">
                 {service.short_description}
               </p>
             )}
@@ -130,28 +126,28 @@ export default async function ServiceDetailPage({
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
 
           {/* Columna Izquierda: Información Principal */}
-          <div className="lg:col-span-2 space-y-12">
+          <div className="lg:col-span-2 space-y-16 mt-8">
 
             {/* Descripción Completa */}
             <section>
-              <h2 className="text-2xl font-bold text-foreground mb-6 font-heading flex items-center gap-2">
-                <Info className="text-primary w-6 h-6" /> Acerca de este tratamiento
+              <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-6 border-b border-border/30 pb-4">
+                El Tratamiento
               </h2>
-              <div className="prose prose-slate max-w-none text-muted-foreground whitespace-pre-wrap leading-relaxed">
+              <div className="prose prose-slate max-w-none text-foreground font-serif text-xl leading-relaxed whitespace-pre-wrap">
                 {service.description}
               </div>
             </section>
 
             {/* Beneficios */}
             {benefits.length > 0 && (
-              <section className="bg-primary/5 rounded-3xl p-8 border border-primary/10">
-                <h2 className="text-2xl font-bold text-foreground mb-6 font-heading flex items-center gap-2">
-                  <CheckCircle2 className="text-primary w-6 h-6" /> Beneficios principales
+              <section>
+                <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-6 border-b border-border/30 pb-4">
+                  Beneficios
                 </h2>
-                <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <ul className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-8">
                   {benefits.map((benefit: any, index: number) => (
-                    <li key={index} className="flex items-start gap-3 text-muted-foreground">
-                      <CheckCircle2 className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+                    <li key={index} className="flex items-start gap-3 text-foreground font-serif text-lg">
+                      <Plus className="w-5 h-5 text-muted-foreground shrink-0 mt-1" strokeWidth={1} />
                       <span>{String(benefit)}</span>
                     </li>
                   ))}
@@ -162,11 +158,13 @@ export default async function ServiceDetailPage({
             {/* Qué incluye */}
             {included.length > 0 && (
               <section>
-                <h2 className="text-2xl font-bold text-foreground mb-6 font-heading">El tratamiento incluye:</h2>
-                <ul className="space-y-3">
+                <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-6 border-b border-border/30 pb-4">
+                  Incluye
+                </h2>
+                <ul className="space-y-4">
                   {included.map((item: any, index: number) => (
-                    <li key={index} className="flex items-center gap-3 text-muted-foreground p-3 rounded-lg bg-muted/50">
-                      <div className="w-2 h-2 rounded-full bg-primary" />
+                    <li key={index} className="flex items-center gap-3 text-foreground font-serif text-lg border-b border-border/10 pb-4">
+                      <ChevronRight className="w-4 h-4 text-muted-foreground" />
                       {String(item)}
                     </li>
                   ))}
@@ -176,29 +174,23 @@ export default async function ServiceDetailPage({
 
             {/* Recomendaciones y Contraindicaciones */}
             {(service.recommendations || service.contraindications) && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
                 {service.recommendations && (
-                  <Card className="border-border/50 shadow-sm bg-muted/20">
-                    <CardContent className="p-6">
-                      <h3 className="font-bold text-lg mb-3 flex items-center gap-2">
-                        <CheckCircle2 className="w-5 h-5 text-green-500" />
-                        Recomendaciones
-                      </h3>
-                      <p className="text-muted-foreground text-sm whitespace-pre-wrap">{service.recommendations}</p>
-                    </CardContent>
-                  </Card>
+                  <section>
+                    <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-4">
+                      Recomendaciones
+                    </h2>
+                    <p className="text-muted-foreground font-serif text-lg whitespace-pre-wrap leading-relaxed">{service.recommendations}</p>
+                  </section>
                 )}
 
                 {service.contraindications && (
-                  <Card className="border-border/50 shadow-sm bg-red-50/50 dark:bg-red-950/20">
-                    <CardContent className="p-6">
-                      <h3 className="font-bold text-lg mb-3 flex items-center gap-2 text-red-600 dark:text-red-400">
-                        <AlertCircle className="w-5 h-5" />
-                        Contraindicaciones
-                      </h3>
-                      <p className="text-muted-foreground text-sm whitespace-pre-wrap">{service.contraindications}</p>
-                    </CardContent>
-                  </Card>
+                  <section>
+                    <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-4">
+                      Contraindicaciones
+                    </h2>
+                    <p className="text-muted-foreground font-serif text-lg whitespace-pre-wrap leading-relaxed">{service.contraindications}</p>
+                  </section>
                 )}
               </div>
             )}
@@ -223,58 +215,54 @@ export default async function ServiceDetailPage({
 
           {/* Columna Derecha: Sticky Checkout & Especialistas */}
           <div className="lg:col-span-1">
-            <div className="sticky top-24 space-y-8">
-              <Card className="border-primary/20 shadow-xl overflow-hidden">
-                <div className="h-2 bg-primary w-full" />
-                <CardContent className="p-8">
-                  {service.show_price && service.price > 0 ? (
-                    <div className="mb-8 text-center">
-                      <p className="text-sm text-muted-foreground font-medium uppercase tracking-wider mb-2">Inversión en ti</p>
-                      <div className="flex items-center justify-center gap-2">
-                        <span className="text-4xl font-bold text-foreground">
-                          ${service.price.toLocaleString()}
-                        </span>
-                        <span className="text-muted-foreground font-medium">COP</span>
-                      </div>
+            <div className="sticky top-32 space-y-12">
+              <div className="border border-border/30 bg-background p-10 shadow-sm">
+                {service.show_price && service.price > 0 ? (
+                  <div className="mb-10 text-center border-b border-border/30 pb-10">
+                    <p className="text-xs text-muted-foreground font-semibold uppercase tracking-widest mb-4">Inversión</p>
+                    <div className="flex flex-col items-center justify-center gap-1">
+                      <span className="text-4xl lg:text-5xl font-serif text-foreground">
+                        ${service.price.toLocaleString()}
+                      </span>
+                      <span className="text-muted-foreground text-sm tracking-widest uppercase mt-2">COP</span>
                     </div>
-                  ) : (
-                    <div className="mb-8 text-center">
-                      <p className="text-sm text-muted-foreground font-medium uppercase tracking-wider mb-2">Reserva tu lugar</p>
-                      <span className="text-2xl font-bold text-foreground">Consulta de valoración</span>
-                    </div>
-                  )}
+                  </div>
+                ) : (
+                  <div className="mb-10 text-center border-b border-border/30 pb-10">
+                    <p className="text-xs text-muted-foreground font-semibold uppercase tracking-widest mb-4">Valoración</p>
+                    <span className="text-2xl font-serif text-foreground">Personalizada</span>
+                  </div>
+                )}
 
-                  <a
-                    href={`https://wa.me/${defaultPhone}?text=${waMessage}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={buttonVariants({ size: "lg", className: "w-full font-bold text-lg h-14" })}
-                  >
-                    <CalendarDays className="w-5 h-5 mr-2" />
-                    Agendar Cita Ahora
-                  </a>
+                <a
+                  href={`https://wa.me/${defaultPhone}?text=${waMessage}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center w-full bg-foreground text-background py-5 px-6 text-sm uppercase tracking-widest font-semibold hover:bg-muted-foreground transition-colors"
+                >
+                  Agendar Cita
+                </a>
 
-                  <p className="text-xs text-center text-muted-foreground mt-4">
-                    Te responderemos a la brevedad para confirmar tu horario ideal.
-                  </p>
-                </CardContent>
-              </Card>
+                <p className="text-xs text-center text-muted-foreground mt-6 font-serif italic">
+                  Nuestro especialista se pondrá en contacto para confirmar disponibilidad.
+                </p>
+              </div>
 
               {/* Especialistas Asignados */}
               {specialistsList.length > 0 && (
-                <div className="space-y-4">
-                  <h3 className="font-bold text-lg font-heading flex items-center gap-2">
-                    <Award className="w-5 h-5 text-primary" /> Especialistas a cargo
+                <div className="pt-6">
+                  <h3 className="text-xs text-muted-foreground font-semibold uppercase tracking-widest mb-6">
+                    A cargo de
                   </h3>
-                  <div className="grid gap-4">
+                  <div className="flex flex-col gap-6">
                     {specialistsList.map((specialist: any) => (
-                      <div key={specialist.id} className="flex items-center gap-4 p-4 rounded-2xl border border-border/50 bg-background hover:bg-muted/30 transition-colors shadow-sm">
-                        <div className="relative w-16 h-16 rounded-full overflow-hidden shrink-0 border-2 border-primary/10">
+                      <div key={specialist.id} className="flex items-center gap-4">
+                        <div className="relative w-16 h-16 rounded-full overflow-hidden shrink-0 border border-border/30">
                           <Image src={specialist.photo_url || "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=2070&auto=format&fit=crop"} alt={specialist.name} fill className="object-cover" />
                         </div>
                         <div>
-                          <h4 className="font-bold text-sm text-foreground">{specialist.name}</h4>
-                          <p className="text-xs text-primary font-medium">{specialist.position}</p>
+                          <h4 className="font-serif text-lg text-foreground">{specialist.name}</h4>
+                          <p className="text-xs text-muted-foreground uppercase tracking-widest mt-1">{specialist.position}</p>
                         </div>
                       </div>
                     ))}
@@ -283,7 +271,6 @@ export default async function ServiceDetailPage({
               )}
             </div>
           </div>
-
         </div>
       </div>
     </div>

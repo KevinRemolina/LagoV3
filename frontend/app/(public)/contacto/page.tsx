@@ -45,81 +45,61 @@ export default async function ContactPage() {
 
           {/* Contact Form */}
           <div>
-            <h2 className="font-heading text-3xl font-bold mb-8">Envíanos un mensaje</h2>
-            <div className="bg-muted/10 border border-border/50 rounded-3xl p-6 sm:p-8">
+            <h2 className="font-heading text-3xl font-bold mb-10">Envíanos un mensaje</h2>
+            <div className="p-8 sm:p-10 border border-border/30 bg-background/50 backdrop-blur-sm rounded-none">
               <ContactForm services={services || []} />
             </div>
           </div>
 
           {/* Contact Info & Map */}
           <div>
-            <h2 className="font-heading text-3xl font-bold mb-8">Información de Contacto</h2>
+            <h2 className="font-heading text-3xl font-bold mb-10">Información de Contacto</h2>
             
-            <div className="flex flex-col gap-8 mb-12">
-              
-              <div className="flex items-start gap-5">
-                <div className="w-10 h-10 rounded-full border border-primary/20 flex items-center justify-center text-primary shrink-0">
-                  <MapPin className="w-4 h-4" />
-                </div>
+            <div className="flex flex-col gap-10 mb-12">
+              <div className="flex items-start gap-6 border-b border-border/30 pb-8">
+                <MapPin className="w-6 h-6 text-primary shrink-0 mt-1" strokeWidth={1.5} />
                 <div>
-                  <h3 className="font-heading text-xl font-semibold text-foreground mb-2">Ubicación</h3>
-                  <p className="text-muted-foreground text-lg leading-relaxed">
-                    Cra. 14 #11-88<br />
-                    Sogamoso, Boyacá<br />
-                    Colombia
+                  <h3 className="text-sm font-medium uppercase tracking-widest text-muted-foreground mb-2">Ubicación</h3>
+                  <p className="text-lg text-foreground font-serif">
+                    Sogamoso, Boyacá<br />Colombia
                   </p>
                 </div>
               </div>
 
-              <div className="w-16 h-px bg-border" />
-
-              <div className="flex items-start gap-5">
-                <div className="w-10 h-10 rounded-full border border-primary/20 flex items-center justify-center text-primary shrink-0">
-                  <Phone className="w-4 h-4" />
-                </div>
+              <div className="flex items-start gap-6 border-b border-border/30 pb-8">
+                <Phone className="w-6 h-6 text-primary shrink-0 mt-1" strokeWidth={1.5} />
                 <div>
-                  <h3 className="font-heading text-xl font-semibold text-foreground mb-2">Líneas de Atención</h3>
-                  <div className="flex flex-col gap-1 text-muted-foreground text-lg">
+                  <h3 className="text-sm font-medium uppercase tracking-widest text-muted-foreground mb-2">Llámanos</h3>
+                  <p className="text-lg text-foreground font-serif">
                     <a href="tel:+573113118625" className="hover:text-primary transition-colors">+57 311 311 8625</a>
-                    <a href="tel:+573143411955" className="hover:text-primary transition-colors">+57 314 341 1955</a>
-                    <a href="tel:+573135105205" className="hover:text-primary transition-colors">+57 313 510 5205</a>
-                  </div>
+                  </p>
                 </div>
               </div>
 
-              <div className="w-16 h-px bg-border" />
-
-              <div className="flex items-start gap-5">
-                <div className="w-10 h-10 rounded-full border border-primary/20 flex items-center justify-center text-primary shrink-0">
-                  <Clock className="w-4 h-4" />
-                </div>
+              <div className="flex items-start gap-6 border-b border-border/30 pb-8">
+                <Clock className="w-6 h-6 text-primary shrink-0 mt-1" strokeWidth={1.5} />
                 <div>
-                  <h3 className="font-heading text-xl font-semibold text-foreground mb-2">Horarios</h3>
-                  <p className="text-muted-foreground text-lg leading-relaxed">
-                    Lunes a Viernes: 8:00 AM - 7:00 PM<br />
+                  <h3 className="text-sm font-medium uppercase tracking-widest text-muted-foreground mb-2">Horario</h3>
+                  <p className="text-lg text-foreground font-serif">
+                    Lun - Vie: 8:00 AM - 7:00 PM<br />
                     Sábados: 9:00 AM - 2:00 PM
                   </p>
                 </div>
               </div>
 
-              <div className="w-16 h-px bg-border" />
-
-              <div className="flex items-start gap-5">
-                <div className="w-10 h-10 rounded-full border border-primary/20 flex items-center justify-center text-primary shrink-0">
-                  <Mail className="w-4 h-4" />
-                </div>
+              <div className="flex items-start gap-6 border-b border-border/30 pb-8">
+                <Mail className="w-6 h-6 text-primary shrink-0 mt-1" strokeWidth={1.5} />
                 <div>
-                  <h3 className="font-heading text-xl font-semibold text-foreground mb-2">Correo Electrónico</h3>
-                  <p className="text-muted-foreground text-lg">
+                  <h3 className="text-sm font-medium uppercase tracking-widest text-muted-foreground mb-2">Correo</h3>
+                  <p className="text-lg text-foreground font-serif">
                     <a href="mailto:contacto@lagospa.com" className="hover:text-primary transition-colors">contacto@lagospa.com</a>
                   </p>
                 </div>
               </div>
-
             </div>
 
             {/* Google Map */}
-            <div className="w-full aspect-video rounded-2xl bg-muted overflow-hidden relative border border-border/50 shadow-md">
+            <div className="w-full aspect-[4/3] bg-muted overflow-hidden relative border border-border/30">
               <iframe 
                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d31759.712927909404!2d-72.96544075012207!3d5.718308397228267!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8e6a4500776773d7%3A0x242e49dec7478756!2sLAGO%3A%20spa%2C%20est%C3%A9tica%20y%20salid!5e0!3m2!1ses!2sco!4v1782000594808!5m2!1ses!2sco" 
                 className="absolute inset-0 w-full h-full border-0" 

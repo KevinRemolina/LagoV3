@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
+import { Toaster } from "sonner";
 import "./globals.css";
 
 const inter = Inter({
@@ -17,9 +18,6 @@ const playfair = Playfair_Display({
 export const metadata: Metadata = {
   title: "Lago Spa · Estética · Salud",
   description: "Clínica de estética y spa. Especialistas en salud, belleza y bienestar.",
-  icons: {
-    icon: "/assets/MainIcon.webp",
-  }
 };
 
 export default function RootLayout({
@@ -31,6 +29,7 @@ export default function RootLayout({
     <html lang="es" className={`${inter.variable} ${playfair.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col font-sans">
         {children}
+        <Toaster richColors position="top-right" />
       </body>
     </html>
   );

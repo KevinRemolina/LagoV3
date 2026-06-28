@@ -1,7 +1,6 @@
 import Image from "next/image";
 import { buttonVariants } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Award, GraduationCap, CheckCircle2 } from "lucide-react";
+import { Award, CheckCircle2, ChevronRight, GraduationCap } from "lucide-react";
 import { createClient } from "@/utils/supabase/server";
 
 export const revalidate = 60;
@@ -23,74 +22,97 @@ export default async function SpecialistsPage() {
   }
 
   return (
-    <div className="bg-background min-h-screen pt-8 pb-20">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 mb-16">
-        <div className="max-w-3xl mx-auto text-center">
-          <div className="inline-flex items-center justify-center p-3 mb-6 bg-secondary rounded-full text-primary">
-            <Award className="w-8 h-8" />
-          </div>
-          <h1 className="font-heading text-4xl md:text-5xl font-bold tracking-tight text-foreground mb-6">
+    <div className="bg-background min-h-screen pt-8 pb-32 relative overflow-hidden">
+      {/* Subtle Background Image */}
+      <div className="absolute inset-0 z-0 opacity-[0.05] dark:opacity-[0.08] pointer-events-none">
+        <Image 
+          src="/assets/MainBackgroundLight.webp" 
+          alt="Texture" 
+          fill 
+          className="object-cover" 
+          priority
+        />
+      </div>
+
+      {/* Header */}
+      <div className="container relative z-10 mx-auto px-4 sm:px-6 lg:px-8 mb-24">
+        <div className="max-w-4xl mx-auto text-center border-b border-border/30 pb-12">
+          <h1 className="font-heading text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-foreground mb-8">
             Nuestros Especialistas
           </h1>
-          <p className="text-lg text-muted-foreground">
-            En Lago Spa, tu bienestar está en manos de profesionales de la salud y la estética altamente cualificados, certificados y comprometidos con tu seguridad.
+          <p className="text-xl md:text-2xl text-muted-foreground font-serif max-w-3xl mx-auto leading-relaxed">
+            Tu bienestar en manos de profesionales de la salud y la estética altamente cualificados, certificados y comprometidos con tu seguridad.
           </p>
         </div>
       </div>
 
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
-          {specialists?.map((specialist) => {
+      <div className="container relative z-10 mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl">
+        <div className="flex flex-col gap-24 lg:gap-40">
+          {specialists?.map((specialist, index) => {
             const certs = Array.isArray(specialist.certifications) ? specialist.certifications : [];
             const firstName = specialist.name.split(' ')[0];
             
-            // Link to specialist's whatsapp if exists, else default
             const rawSpecPhone = specialist.whatsapp || defaultPhone;
             const phone = typeof rawSpecPhone === 'string' ? rawSpecPhone.replace(/[^0-9]/g, '') : defaultPhone;
             const waMessage = encodeURIComponent(`Hola ${firstName}, quisiera agendar una cita contigo.`);
 
+            const isEven = index % 2 === 0;
+
             return (
-              <Card key={specialist.id} className="overflow-hidden border-border/50 hover:shadow-lg transition-shadow">
-                <div className="flex flex-col sm:flex-row h-full">
-                  <div className="relative w-full sm:w-2/5 aspect-square sm:aspect-auto">
+              <div key={specialist.id} className={`flex flex-col gap-10 lg:gap-20 items-center ${isEven ? 'lg:flex-row' : 'lg:flex-row-reverse'}`}>
+                {/* Photo Section */}
+                <div className="w-full lg:w-1/2">
+                  <div className="relative w-full aspect-[4/5] bg-muted overflow-hidden border border-border/20">
                     <Image
                       src={specialist.photo_url || "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=2070&auto=format&fit=crop"}
                       alt={specialist.name}
                       fill
-                      className="object-cover"
+                      className="object-cover transition-transform duration-1000 hover:scale-105"
                     />
                   </div>
-                  <CardContent className="p-6 sm:w-3/5 flex flex-col justify-center">
-                    <div className="mb-4">
-                      <h3 className="font-heading text-2xl font-bold text-foreground">{specialist.name}</h3>
-                      <p className="text-primary font-medium">{specialist.position}</p>
-                    </div>
-                    <p className="text-muted-foreground text-sm mb-6 flex-grow">
-                      {specialist.description}
-                    </p>
-                    {certs.length > 0 && (
-                      <div>
-                        <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-2">
-                          <GraduationCap className="w-4 h-4" /> Especialidades / Certificaciones
-                        </h4>
-                        <ul className="space-y-2">
-                          {certs.map((cert: any, sIndex: number) => (
-                             <li key={sIndex} className="text-sm font-medium flex items-start gap-2">
-                                <CheckCircle2 className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-                                {String(cert)}
-                             </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                    <div className="mt-8 pt-6 border-t mt-auto">
-                      <a href={`https://wa.me/${phone}?text=${waMessage}`} target="_blank" rel="noopener noreferrer" className={buttonVariants({ variant: "outline", className: "w-full text-primary border-primary/20 hover:bg-primary/5 font-semibold" })}>
-                        Agendar con {firstName}
-                      </a>
-                    </div>
-                  </CardContent>
                 </div>
-              </Card>
+
+                {/* Info Section */}
+                <div className="w-full lg:w-1/2 flex flex-col justify-center">
+                  <div className="border-b border-border/30 pb-6 mb-8">
+                    <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-3">{specialist.position}</p>
+                    <h2 className="font-heading text-4xl md:text-5xl font-bold text-foreground">
+                      {specialist.name}
+                    </h2>
+                  </div>
+                  
+                  <p className="text-foreground font-serif text-lg leading-relaxed mb-10 whitespace-pre-wrap">
+                    {specialist.description}
+                  </p>
+
+                  {certs.length > 0 && (
+                    <div className="mb-10">
+                      <h4 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-6">
+                        Credenciales y Certificaciones
+                      </h4>
+                      <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {certs.map((cert: any, sIndex: number) => (
+                           <li key={sIndex} className="text-foreground font-serif text-base flex items-start gap-3">
+                              <CheckCircle2 className="w-4 h-4 text-muted-foreground shrink-0 mt-1" strokeWidth={1.5} />
+                              <span>{String(cert)}</span>
+                           </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  <div className="pt-8 border-t border-border/30">
+                    <a 
+                      href={`https://wa.me/${phone}?text=${waMessage}`} 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      className="inline-flex items-center text-sm uppercase tracking-widest font-semibold hover:text-primary transition-colors group"
+                    >
+                      Solicitar Cita con {firstName} <ChevronRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                    </a>
+                  </div>
+                </div>
+              </div>
             )
           })}
         </div>

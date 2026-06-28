@@ -1,9 +1,10 @@
 import { createClient } from "@/utils/supabase/server";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Mail, CheckCircle, Archive, Phone, User, Calendar, MessageSquare, Clock } from "lucide-react";
+import { Mail, CheckCircle, Archive, Phone, Calendar, MessageSquare, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { markAsRead, markAsArchived } from "./actions";
+import { markAsArchived } from "./actions";
+import { WhatsAppReplyButton } from "@/components/admin/WhatsAppReplyButton";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 
@@ -14,19 +15,21 @@ export default async function InboxPage() {
 
   // Fetch pending and read messages. We don't fetch archived by default to keep it clean.
   const { data: messages, error } = await supabase
-    .from('contact_forms')
-    .select(`
+    .from("contact_forms")
+    .select(
+      `
       *,
       services(title)
-    `)
-    .in('status', ['PENDING', 'READ'])
-    .order('created_at', { ascending: false });
+    `
+    )
+    .in("status", ["PENDING", "READ"])
+    .order("created_at", { ascending: false });
 
   if (error) {
     console.error("Error fetching messages", error);
   }
 
-  const pendingCount = messages?.filter(m => m.status === 'PENDING').length || 0;
+  const pendingCount = messages?.filter((m) => m.status === "PENDING").length || 0;
 
   return (
     <div className="space-y-6">
@@ -39,7 +42,7 @@ export default async function InboxPage() {
         </div>
         {pendingCount > 0 && (
           <Badge variant="destructive" className="px-4 py-1.5 text-sm">
-            {pendingCount} {pendingCount === 1 ? 'mensaje nuevo' : 'mensajes nuevos'}
+            {pendingCount} {pendingCount === 1 ? "mensaje nuevo" : "mensajes nuevos"}
           </Badge>
         )}
       </div>
@@ -58,47 +61,64 @@ export default async function InboxPage() {
         </Card>
       ) : (
         <div className="grid grid-cols-1 gap-6">
-          {messages?.map((msg: any) => (
-            <Card key={msg.id} className={`transition-all ${msg.status === 'PENDING' ? 'border-primary/50 shadow-md bg-primary/5' : 'border-border/50 bg-card'}`}>
+          {messages?.map((msg) => (
+            <Card
+              key={msg.id}
+              className={`transition-all ${msg.status === "PENDING"
+                  ? "border-primary/50 shadow-md bg-primary/5"
+                  : "border-border/50 bg-card"
+                }`}
+            >
               <CardHeader className="pb-4">
                 <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
                   <div className="space-y-1">
                     <div className="flex items-center gap-3">
                       <CardTitle className="text-xl flex items-center gap-2">
-                        {msg.status === 'PENDING' && <span className="w-3 h-3 rounded-full bg-primary animate-pulse" />}
+                        {msg.status === "PENDING" && (
+                          <span className="w-3 h-3 rounded-full bg-primary animate-pulse" />
+                        )}
                         {msg.full_name}
                       </CardTitle>
-                      {msg.status === 'PENDING' ? (
-                        <Badge variant="default" className="bg-primary">Nuevo</Badge>
+                      {msg.status === "PENDING" ? (
+                        <Badge variant="default" className="bg-primary">
+                          Nuevo
+                        </Badge>
                       ) : (
-                        <Badge variant="outline" className="text-muted-foreground">Leído</Badge>
+                        <Badge variant="outline" className="text-muted-foreground">
+                          Leído
+                        </Badge>
                       )}
                     </div>
                     <CardDescription className="flex items-center gap-4 pt-1">
                       <span className="flex items-center gap-1.5">
                         <Clock className="w-4 h-4" />
-                        {format(new Date(msg.created_at), "d 'de' MMMM, yyyy 'a las' h:mm a", { locale: es })}
+                        {format(new Date(msg.created_at), "d 'de' MMMM, yyyy 'a las' h:mm a", {
+                          locale: es,
+                        })}
                       </span>
                     </CardDescription>
                   </div>
 
                   <div className="flex items-center gap-2">
-                    {msg.status === 'PENDING' && (
-                      <form action={async () => {
+                    <WhatsAppReplyButton
+                      messageId={msg.id}
+                      phone={msg.phone}
+                      fullName={msg.full_name}
+                      serviceTitle={msg.services?.title ?? null}
+                      alreadyRead={msg.status === "READ"}
+                    />
+                    <form
+                      action={async () => {
                         "use server";
-                        await markAsRead(msg.id);
-                      }}>
-                        <Button type="submit" variant="secondary" size="sm" className="h-9">
-                          <CheckCircle className="w-4 h-4 mr-2" />
-                          Marcar Leído
-                        </Button>
-                      </form>
-                    )}
-                    <form action={async () => {
-                      "use server";
-                      await markAsArchived(msg.id);
-                    }}>
-                      <Button type="submit" variant="ghost" size="sm" className="h-9 text-muted-foreground hover:text-red-500">
+                        await markAsArchived(msg.id);
+                      }}
+                    >
+                      <Button
+                        type="submit"
+                        variant="ghost"
+                        size="sm"
+                        className="h-9 text-muted-foreground hover:text-red-500"
+                      >
                         <Archive className="w-4 h-4" />
                         <span className="sr-only">Archivar</span>
                       </Button>
@@ -111,43 +131,56 @@ export default async function InboxPage() {
                   {/* Datos del cliente */}
                   <div className="col-span-1 space-y-4 p-4 rounded-xl bg-muted/40 border border-border/50">
                     <div>
-                      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">Contacto</p>
+                      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">
+                        Contacto
+                      </p>
                       <div className="space-y-2">
-                        <a href={`tel:${msg.phone}`} className="flex items-center gap-2 text-sm font-medium hover:text-primary transition-colors">
-                          <Phone className="w-4 h-4 text-primary shrink-0" />
-                          {msg.phone}
-                        </a>
-                        <a href={`mailto:${msg.email}`} className="flex items-center gap-2 text-sm font-medium hover:text-primary transition-colors">
-                          <Mail className="w-4 h-4 text-primary shrink-0" />
-                          {msg.email}
-                        </a>
-                      </div>
-                    </div>
-                    {msg.services && (
-                      <div className="pt-2 border-t border-border/50">
-                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">Interés</p>
-                        <Badge variant="secondary" className="font-normal">
-                          {msg.services.title}
-                        </Badge>
-                      </div>
-                    )}
-                  </div>
 
-                  {/* Mensaje */}
-                  <div className="col-span-1 md:col-span-3">
-                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 flex items-center gap-2">
-                      <MessageSquare className="w-4 h-4" /> Mensaje
-                    </p>
-                    <div className="p-4 rounded-xl bg-card border border-border/50 text-foreground whitespace-pre-wrap leading-relaxed">
-                      {msg.message}
-                    </div>
+                      <a
+                        href={`tel:${msg.phone}`}
+                        className="flex items-center gap-2 text-sm font-medium hover:text-primary transition-colors"
+                      >
+                        <Phone className="w-4 h-4 text-primary shrink-0" />
+                        {msg.phone}
+                      </a>
+
+                      <a
+                        href={`mailto:${msg.email}`}
+                        className="flex items-center gap-2 text-sm font-medium hover:text-primary transition-colors"
+                      >
+                        <Mail className="w-4 h-4 text-primary shrink-0" />
+                        {msg.email}
+                      </a>
                   </div>
                 </div>
+                {msg.services && (
+                  <div className="pt-2 border-t border-border/50">
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">
+                      Interés
+                    </p>
+                    <Badge variant="secondary" className="font-normal">
+                      {msg.services.title}
+                    </Badge>
+                  </div>
+                )}
+              </div>
+
+              {/* Mensaje */}
+              <div className="col-span-1 md:col-span-3">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 flex items-center gap-2">
+                  <MessageSquare className="w-4 h-4" /> Mensaje
+                </p>
+                <div className="p-4 rounded-xl bg-card border border-border/50 text-foreground whitespace-pre-wrap leading-relaxed">
+                  {msg.message}
+                </div>
+              </div>
+            </div>
               </CardContent>
             </Card>
-          ))}
-        </div>
+  ))
+}
+        </div >
       )}
-    </div>
+    </div >
   );
 }

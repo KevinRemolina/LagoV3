@@ -3,8 +3,7 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
-import { ArrowLeft, Tag, Clock, CalendarDays, ArrowRight } from "lucide-react";
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
+import { ArrowLeft, Tag, CalendarDays, ArrowRight } from "lucide-react";
 
 export const revalidate = 60;
 
@@ -53,19 +52,19 @@ export default async function CategoryPage({
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Breadcrumb & Navigation */}
-        <div className="mb-8">
-          <Link href="/servicios" className={buttonVariants({ variant: "ghost", className: "text-muted-foreground hover:text-primary -ml-4" })}>
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Volver a Especialidades
+        <div className="mb-12">
+          <Link href="/servicios" className="inline-flex items-center text-sm tracking-widest uppercase font-semibold text-muted-foreground hover:text-foreground transition-colors">
+            <ArrowLeft className="w-4 h-4 mr-2" strokeWidth={1.5} />
+            Volver a Colecciones
           </Link>
         </div>
 
         {/* Header */}
-        <div className="max-w-3xl mb-16">
-          <h1 className="font-heading text-4xl md:text-5xl font-bold tracking-tight text-foreground mb-4">
+        <div className="max-w-4xl mb-24 border-b border-border/30 pb-12">
+          <h1 className="font-heading text-5xl md:text-6xl font-bold tracking-tight text-foreground mb-6 uppercase">
             {category.name}
           </h1>
-          <p className="text-xl text-muted-foreground">
+          <p className="text-xl md:text-2xl text-muted-foreground font-serif max-w-2xl leading-relaxed">
             {category.description}
           </p>
         </div>
@@ -89,61 +88,69 @@ export default async function CategoryPage({
               const waMessage = encodeURIComponent(`Hola, estoy interesado/a en el tratamiento: ${service.title}. ¿Podrían brindarme más información?`);
 
               return (
-                <Card key={service.id} className="overflow-hidden flex flex-col h-full hover:shadow-xl transition-shadow duration-300">
-                  <div className="relative aspect-[4/3] w-full">
+                <div key={service.id} className="group flex flex-col gap-6">
+                  <Link href={`/servicios/${slug}/${service.slug}`} className="relative w-full aspect-[4/5] overflow-hidden bg-muted block">
                     <Image
                       src={imageUrl}
                       alt={service.title}
                       fill
-                      className="object-cover"
+                      className="object-cover transition-transform duration-1000 group-hover:scale-105"
                     />
-                    {service.is_promotional && (
-                      <div className="absolute top-4 left-4 bg-primary text-primary-foreground px-3 py-1 rounded-full text-sm font-bold flex items-center shadow-lg">
-                        <Tag className="w-4 h-4 mr-1" />
-                        Promoción
-                      </div>
-                    )}
-                    {service.status === 'PRIVATE' && (
-                      <div className="absolute top-4 right-4 bg-gray-900/90 text-white px-3 py-1 rounded-full text-sm font-bold flex items-center shadow-lg backdrop-blur-sm">
-                        🔒 Privado
-                      </div>
-                    )}
-                  </div>
-                  <CardHeader>
-                    <h3 className="font-heading text-xl font-bold line-clamp-2" title={service.title}>
-                      {service.title}
-                    </h3>
-                    <p className="text-muted-foreground line-clamp-2 mt-2 text-sm">
+                    <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors duration-500" />
+                    
+                    {/* Badges Flotantes */}
+                    <div className="absolute top-4 left-4 flex flex-col gap-2">
+                      {service.is_promotional && (
+                        <div className="bg-background/90 backdrop-blur text-foreground px-4 py-1.5 text-xs font-semibold uppercase tracking-widest border border-border/50">
+                          Promoción
+                        </div>
+                      )}
+                      {service.status === 'PRIVATE' && (
+                        <div className="bg-foreground/90 backdrop-blur text-background px-4 py-1.5 text-xs font-semibold uppercase tracking-widest">
+                          🔒 Oculto
+                        </div>
+                      )}
+                    </div>
+                  </Link>
+                  
+                  <div className="flex flex-col flex-1">
+                    <Link href={`/servicios/${slug}/${service.slug}`}>
+                      <h3 className="font-heading text-2xl font-bold text-foreground mb-3 group-hover:text-primary transition-colors">
+                        {service.title}
+                      </h3>
+                    </Link>
+                    <p className="text-muted-foreground font-serif text-lg line-clamp-2 mb-6 flex-1">
                       {service.short_description || service.description}
                     </p>
-                  </CardHeader>
-                  <CardContent className="flex-1">
-                    {service.show_price && service.price > 0 && (
-                      <div className="flex items-end gap-2 mt-2">
-                        <span className="text-2xl font-bold text-foreground">
-                          ${service.price.toLocaleString()}
-                        </span>
-                        <span className="text-muted-foreground text-sm mb-1">COP</span>
+                    
+                    <div className="flex items-center justify-between border-t border-border/30 pt-6 mt-auto">
+                      <div className="flex flex-col">
+                        <span className="text-xs text-muted-foreground uppercase tracking-widest mb-1">Inversión</span>
+                        {service.show_price && service.price > 0 ? (
+                          <span className="text-lg font-bold font-serif text-foreground">
+                            ${service.price.toLocaleString()} COP
+                          </span>
+                        ) : (
+                          <span className="text-sm font-medium text-foreground">Previa Valoración</span>
+                        )}
                       </div>
-                    )}
-                  </CardContent>
-                  <CardFooter className="pt-0 flex flex-col gap-3">
-                    <a href={`https://wa.me/${defaultPhone}?text=${waMessage}`} target="_blank" rel="noopener noreferrer" className={buttonVariants({ className: "w-full font-semibold" })}>
-                      <CalendarDays className="w-4 h-4 mr-2" />
-                      Reservar Cita
-                    </a>
-                    <Link href={`/servicios/${slug}/${service.slug}`} className={buttonVariants({ variant: "ghost", className: "w-full text-primary hover:text-primary hover:bg-primary/10" })}>
-                      Ver detalles completos
-                    </Link>
-                  </CardFooter>
-                </Card>
+                      
+                      <Link 
+                        href={`/servicios/${slug}/${service.slug}`} 
+                        className="text-xs uppercase tracking-widest font-semibold flex items-center hover:text-primary transition-colors"
+                      >
+                        Descubrir <ArrowRight className="w-4 h-4 ml-2" />
+                      </Link>
+                    </div>
+                  </div>
+                </div>
               )
             })}
           </div>
         ) : (
-          <div className="text-center py-24 bg-muted/30 rounded-3xl">
-            <h3 className="text-2xl font-bold text-muted-foreground">Próximamente nuevos tratamientos</h3>
-            <p className="text-muted-foreground mt-2">Estamos trabajando para ofrecerte los mejores servicios en esta categoría.</p>
+          <div className="text-center py-32 border border-border/30 bg-muted/10">
+            <h3 className="text-3xl font-heading font-bold text-foreground mb-4">Colección en Preparación</h3>
+            <p className="text-muted-foreground font-serif text-xl max-w-lg mx-auto">Estamos seleccionando los mejores tratamientos para esta categoría. Pronto revelaremos nuestras novedades.</p>
           </div>
         )}
 

@@ -2,12 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { 
-  LayoutDashboard, 
-  Sparkles, 
-  Users, 
-  MessageSquare, 
-  Settings, 
+import {
+  LayoutDashboard,
+  Sparkles,
+  Users,
+  MessageSquare,
+  Settings,
   LogOut,
   Droplets,
   Menu
@@ -21,8 +21,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { useState } from "react";
-import { Toaster } from "sonner";
-import { Badge } from "@/components/ui/badge";
+import Image from "next/image";
 
 const sidebarLinks = [
   { name: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
@@ -44,17 +43,21 @@ export default function AdminLayout({
     <div className="flex flex-col h-full bg-card border-r border-border">
       <div className="p-6 border-b border-border">
         <Link href="/" className="flex items-center gap-2 text-primary-foreground">
-          <Droplets className="h-8 w-8 text-primary" />
-          <span className="font-heading text-xl font-bold tracking-tight text-foreground">
-            Lago Spa Admin
-          </span>
+          <Image
+            src="/assets/logoAdminLago.svg"
+            alt="Lago Spa Logo"
+            width={170}
+            height={70}
+            className="object-contain h-10 w-auto"
+            priority
+          />
         </Link>
       </div>
-      
+
       <div className="flex-1 py-6 px-4 space-y-2">
         {sidebarLinks.map((link) => {
           const isActive = pathname.startsWith(link.href) && link.href !== "#";
-          
+
           if (link.isWip) {
             return (
               <div
@@ -75,11 +78,10 @@ export default function AdminLayout({
               key={link.name}
               href={link.href}
               onClick={() => setIsOpen(false)}
-              className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors font-medium ${
-                isActive 
-                  ? "bg-primary text-primary-foreground shadow-md" 
-                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
-              }`}
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors font-medium ${isActive
+                ? "bg-primary text-primary-foreground shadow-md"
+                : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                }`}
             >
               <link.icon className="w-5 h-5" />
               {link.name}
@@ -109,10 +111,14 @@ export default function AdminLayout({
         {/* Mobile Header */}
         <header className="lg:hidden sticky top-0 z-40 bg-card border-b border-border px-4 h-16 flex items-center justify-between">
           <Link href="/admin/dashboard" className="flex items-center gap-2">
-            <Droplets className="h-6 w-6 text-primary" />
-            <span className="font-heading font-bold text-foreground">
-              Admin
-            </span>
+            <Image
+              src="/assets/LogoPrincipal.avif"
+              alt="Lago Spa Logo"
+              width={140}
+              height={40}
+              className="object-contain h-10 w-auto"
+              priority
+            />
           </Link>
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
             <SheetTrigger className="p-2 -mr-2 rounded-md hover:bg-accent hover:text-accent-foreground transition-colors">
@@ -133,7 +139,6 @@ export default function AdminLayout({
           {children}
         </main>
       </div>
-      <Toaster richColors position="top-right" />
     </div>
   );
 }

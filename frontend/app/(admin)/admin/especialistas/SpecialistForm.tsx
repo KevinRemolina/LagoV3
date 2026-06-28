@@ -11,7 +11,19 @@ import Image from "next/image";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
-export function SpecialistForm({ initialData }: { initialData?: any }) {
+type SpecialistInitialData = {
+  id?: string;
+  photo_url?: string;
+  certifications?: string[];
+  schedules?: string[];
+  name?: string;
+  position?: string;
+  description?: string;
+  whatsapp?: string;
+  is_visible?: boolean;
+};
+
+export function SpecialistForm({ initialData }: { initialData?: SpecialistInitialData }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
   const [photoPreview, setPhotoPreview] = useState<string | null>(initialData?.photo_url || null);
@@ -39,7 +51,7 @@ export function SpecialistForm({ initialData }: { initialData?: any }) {
       // Delete the actual file from formData to avoid Next.js 1MB Server Action limit
       formData.delete('photo');
       
-      let generatedId = initialData?.id || crypto.randomUUID();
+      const generatedId = initialData?.id || crypto.randomUUID();
       formData.append("generated_id", generatedId);
 
       if (file) {
@@ -132,7 +144,7 @@ export function SpecialistForm({ initialData }: { initialData?: any }) {
 
             <Card>
               <CardHeader>
-                <CardTitle>Certificaciones y Horarios (JSONB)</CardTitle>
+                <CardTitle>Certificaciones y Horarios</CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
                 
