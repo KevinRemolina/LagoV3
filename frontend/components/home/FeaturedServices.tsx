@@ -1,3 +1,4 @@
+import { createAdminClient } from "@/utils/supabase/admin";
 import { createClient } from "@/utils/supabase/server";
 import { ArrowRight } from "lucide-react";
 import Image from "next/image";
@@ -6,11 +7,12 @@ import BlurFade from "@/components/ui/blur-fade";
 import { StaggerContainer, StaggerItem } from "@/components/ui/stagger-container";
 
 export async function FeaturedServices() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const adminClient = createAdminClient();
+  const regularClient = await createClient();
+  const { data: { user } } = await regularClient.auth.getUser();
   const allowedStatuses = user ? ['PUBLIC', 'PRIVATE'] : ['PUBLIC'];
 
-  const { data: services } = await supabase
+  const { data: services } = await adminClient
     .from('services')
     .select('*, service_images(*), categories!inner(slug)')
     .in('status', allowedStatuses)
@@ -22,7 +24,7 @@ export async function FeaturedServices() {
     return null; // No renderizamos la sección si no hay destacados
   }
 
-  const { data: settings } = await supabase.from('settings').select('*').eq('key', 'whatsapp_primary').single();
+  const { data: settings } = await adminClient.from('settings').select('*').eq('key', 'whatsapp_primary').single();
   let defaultPhone = "573113118625";
   if (settings?.value) {
     const rawWa = typeof settings.value === 'string' ? settings.value : String(settings.value);
@@ -53,7 +55,7 @@ export async function FeaturedServices() {
             const coverImage = service.service_images?.find((img: any) => img.is_cover) || service.service_images?.[0];
             let imageUrl = "https://images.unsplash.com/photo-1600880292203-757bb62b4baf?q=80&w=2070&auto=format&fit=crop";
             if (coverImage?.storage_path) {
-              const { data } = supabase.storage.from('services').getPublicUrl(coverImage.storage_path);
+              const { data } = adminClient.storage.from('services').getPublicUrl(coverImage.storage_path);
               imageUrl = data.publicUrl;
             }
 
