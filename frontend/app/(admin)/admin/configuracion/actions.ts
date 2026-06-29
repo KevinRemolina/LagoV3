@@ -32,17 +32,7 @@ export async function getSettings() {
   
   if (data) {
     data.forEach(item => {
-      // Supabase stores `value` as JSONB — normalize arrays to JSON strings for form usage
-      if (item.key === 'promotions_selected_ids') {
-        if (Array.isArray(item.value)) {
-          settingsObj[item.key] = JSON.stringify(item.value)
-        } else {
-          settingsObj[item.key] = item.value ?? '[]'
-        }
-      } else {
-        // For text fields, ensure we get a string
-        settingsObj[item.key] = Array.isArray(item.value) ? JSON.stringify(item.value) : (item.value ?? '')
-      }
+      settingsObj[item.key] = item.value
     })
   }
   

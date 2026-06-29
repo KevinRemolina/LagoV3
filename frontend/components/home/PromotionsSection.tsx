@@ -1,18 +1,14 @@
 import { createClient } from "@/utils/supabase/server";
-import { createAdminClient } from "@/utils/supabase/admin";
 import BlurFade from "@/components/ui/blur-fade";
 import { PromotionsCarousel } from "./PromotionsCarousel";
 
 export async function PromotionsSection() {
-  // Admin client bypasses RLS — used only to read public config (settings table)
-  const adminSupabase = createAdminClient();
-  // Regular client respects RLS and auth — used for service queries
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   const allowedStatuses = user ? ['PUBLIC', 'PRIVATE'] : ['PUBLIC'];
 
-  // Read settings with admin client so RLS never blocks public visitors
-  const { data: settingsData } = await adminSupabase
+  // Fetch settings
+  const { data: settingsData } = await supabase
     .from('settings')
     .select('*')
     .in('key', ['promotions_title', 'promotions_subtitle', 'promotions_selected_ids']);
@@ -21,31 +17,17 @@ export async function PromotionsSection() {
   let subtitle = 'Experiencias diseñadas para tu bienestar absoluto, por tiempo limitado.';
   let selectedIds: string[] = [];
 
-  if (settingsData && settingsData.length > 0) {
+  if (settingsData) {
     const settingsMap = new Map(settingsData.map(s => [s.key, s.value]));
-    if (settingsMap.has('promotions_title') && settingsMap.get('promotions_title')) {
-      title = String(settingsMap.get('promotions_title'));
-    }
-    if (settingsMap.has('promotions_subtitle') && settingsMap.get('promotions_subtitle')) {
-      subtitle = String(settingsMap.get('promotions_subtitle'));
-    }
+    if (settingsMap.has('promotions_title')) title = settingsMap.get('promotions_title') as string;
+    if (settingsMap.has('promotions_subtitle')) subtitle = settingsMap.get('promotions_subtitle') as string;
     if (settingsMap.has('promotions_selected_ids')) {
-      const rawVal = settingsMap.get('promotions_selected_ids');
       try {
-        // The value can be already a JSON array (if Supabase stores it as jsonb) 
-        // or a stringified JSON array
-        if (Array.isArray(rawVal)) {
-          selectedIds = rawVal;
-        } else if (typeof rawVal === 'string') {
-          selectedIds = JSON.parse(rawVal);
-        }
-      } catch (e) {
-        selectedIds = [];
-      }
+        selectedIds = JSON.parse(settingsMap.get('promotions_selected_ids') as string);
+      } catch (e) {}
     }
   }
 
-  // If admin hasn't selected any promotions to display, hide the section entirely
   if (selectedIds.length === 0) {
     return null;
   }
@@ -58,10 +40,10 @@ export async function PromotionsSection() {
     .eq('is_promotional', true);
 
   if (!services || services.length === 0) {
-    return null;
+    return null; 
   }
-
-  // Preserve the order defined in the admin panel
+  
+  // Sort based on the selectedIds array
   const sortedServices = services.sort((a, b) => selectedIds.indexOf(a.id) - selectedIds.indexOf(b.id));
 
   return (
